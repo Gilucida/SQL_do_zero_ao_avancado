@@ -1,46 +1,89 @@
-# SQL_do_zero_ao_avancado
-aprendendo na prática
+# SQL do Zero ao Avançado
 
+Repositório de estudos práticos em SQL com SQLite, documentando conceitos fundamentais e consultas progressivamente mais complexas.
 
-Aula de hoje = Criar, renomear, algumas funções
+> A prática é o foco principal. A IA foi utilizada apenas como apoio na documentação.
 
-DOCUMENTAÇÃO IMPORTANTE: (https://sqlite.org/docs.html)
+---
 
+## Tecnologias
 
+- **SQLite** – banco de dados relacional leve
+- **SQL** – linguagem de consulta estruturada
+- **Git/GitHub** – versionamento e hospedagem
 
-/
---Novas colunas: devo ter cuidado na vígura e o FROM  deve vir na sequência;
+---
 
-ex:
+## Como Executar
 
-SELECT IdCliente,
-    QtdePontos,
-    QtdePontos + 10 AS QtdePontosPlus10,
-    QtdePontos * 2 AS QtdePontosDouble,   -- ← vírgula extra aqui
-    DtCriacao,                            -- ← vírgula extra aqui também
-FROM clientes
-No SQL, a lista de colunas não pode terminar com vírgula. O FROM deve vir imediatamente após o último nome de coluna (sem vírgula).
+```bash
+git clone https://github.com/gilucida/SQL_do_zero_ao_avancado.git
+cd SQL_do_zero_ao_avancado
+```
 
---Converter tipo de dado texto para número, neste caso DATA/HORA
+Abra os scripts em qualquer ambiente compatível: SQLite CLI, DB Browser for SQLite ou similar.
 
-DtCriacao,
-        substr(DtCriacao, 1, 10) AS DtCriacaoNova **contei quantos elementos tenho na string e renomeei a coluna.
-/
+---
 
+## Conteúdo
 
-/
-SELECT IdCliente,
-        --QtdePontos,
-        --QtdePontos + 10 AS QtdePontosPlus10,
-        --QtdePontos * 2 AS QtdePontosDouble,
-        DtCriacao,
-        substr(DtCriacao, 1, 19) AS DtCriacaoSubstr,
-        datetime(substr(DtCriacao, 1, 19)) AS DtCriacaoNova,
-        strftime('%w', substr(DtCriacao, 1, 19)) AS DiaSemana
-FROM clientes
+| Aula | Tema | Conceitos |
+|------|------|-----------|
+| 01 | Filtros com `WHERE` | `IN`, `LIKE`, operadores de comparação |
+| 02 | Colunas e Datas | `AS`, `substr()`, `datetime()`, `strftime()` |
 
+---
 
+## Aula 01 — Filtros com `WHERE`
 
-Nesta consulta, deixamos de lado os cálculos com os pontos (QtdePontos) e focamos no tratamento da data de criação (DtCriacao). Utilizamos a cláusula AS para criar e renomear novas colunas durante a execução da consulta: primeiro, extraímos os 19 primeiros caracteres da data com substr para padronizar o formato ISO (YYYY-MM-DD HH:MM:SS) e nomeamos essa coluna como DtCriacaoSubstr; em seguida, aplicamos a função datetime para converter essa string em um valor de data/hora válido, gerando a coluna DtCriacaoNova; por fim, usamos strftime('%w') para criar a coluna DiaSemana, que retorna o número do dia da semana (onde 0 representa domingo). Os campos antigos foram mantidos comentados apenas para referência histórica no código.
-/
+Exploração da cláusula `WHERE` para filtrar registros com diferentes tipos de condições.
 
+**Boas práticas:**
+- Prefira `IN` a múltiplos `OR` — mais legível e eficiente
+- Use `LIKE` com moderação em tabelas grandes (maior custo de processamento)
+- Números não levam aspas; textos e datas, sim
+
+```sql
+-- Recomendado: filtro com IN
+SELECT *
+FROM produtos
+WHERE DescNomeProduto IN ('Churn_10pp', 'Churn_2pp', 'Churn_5pp');
+
+-- Busca parcial com LIKE
+SELECT *
+FROM produtos
+WHERE DescNomeProduto LIKE '%Churn%';
+```
+
+---
+
+## Aula 02 — Criação de Colunas e Manipulação de Datas
+
+Criação de colunas derivadas com `AS` e tratamento de campos de data/hora em SQLite.
+
+**Funções utilizadas:**
+
+| Função | Descrição |
+|--------|-----------|
+| `substr(col, inicio, tamanho)` | Extrai parte de uma string |
+| `datetime(str)` | Converte para formato ISO `AAAA-MM-DD HH:MM:SS` |
+| `strftime('%w', data)` | Retorna o dia da semana (0 = domingo) |
+
+```sql
+SELECT
+    IdCliente,
+    DtCriacao,
+    substr(DtCriacao, 1, 19)                    AS DtCriacaoSubstr,
+    datetime(substr(DtCriacao, 1, 19))           AS DtCriacaoNova,
+    strftime('%w', substr(DtCriacao, 1, 19))     AS DiaSemana
+FROM clientes;
+```
+
+> **Erro comum:** não termine a lista de colunas com vírgula antes do `FROM`.
+
+---
+
+## Referências
+
+- [Documentação SQLite](https://www.sqlite.org/docs.html)
+- [Funções de Data e Hora — SQLite](https://www.sqlite.org/lang_datefunc.html)
